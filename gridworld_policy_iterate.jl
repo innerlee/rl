@@ -1,4 +1,6 @@
 
+using ArgParse
+
 # stop condition
 isend(s) = s in [(1, 1), (4, 4)]
 
@@ -54,9 +56,25 @@ end
 ## main
 
 function main()
+    s = ArgParseSettings()
+    @add_arg_table s begin
+        "--n", "-n"
+            arg_type = Int
+            default = 10
+            help = "num of iteration"
+        "--gamma", "-g"
+            help = "γ"
+            arg_type = Float64
+            default = 1.
+        "--verbose", "-v"
+            help = "verbose"
+            action = :store_true
+    end
+    parsed_args = parse_args(ARGS, s)
     # config
-    N = 10
-    γ = 1
+    N = parsed_args["n"]
+    γ = parsed_args["gamma"]
+    verbose = parsed_args["verbose"]
     # states
     S = [(i, j) for i in 1:4 for j in 1:4]
     # actions
@@ -67,11 +85,12 @@ function main()
     println("---------- init ----------")
     display_value(V)
     for k in 1:N
-        println("---------- $k ----------")
+        verbose && println("---------- $k ----------")
         V = iterate(V, A, γ)
-        display_value(V)
+        verbose && display_value(V)
     end
-
+    verbose || println("---------- $N ----------")
+    verbose || display_value(V)
 end
 
 main()
