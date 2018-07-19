@@ -16,16 +16,20 @@ function next_state(current_state, action)
 end
 
 # display values and greedy policy
-function display_value(S)
-    V = zeros(4, 4)
-    for ((i, j), v) in S
-        V[i, j] = v
+function display_value(V)
+    Vmat= zeros(4, 4)
+    for ((i, j), v) in pairs(V)
+        Vmat[i, j] = v
     end
-    println(join(split(repr("text/plain", V), "\n")[2:end], "\n"))
+    println(join(split(repr("text/plain", Vmat), "\n")[2:end], "\n"))
 end
 
-function iterate()
-
+function iterate(V)
+    newV = copy(V)
+    for ((i, j), v) in pairs(V)
+        newV[(i, j)] = v
+    end
+    newV
 end
 
 ## main
@@ -45,7 +49,7 @@ function main()
     display_value(V)
     for k in 1:N
         println("---------- $k ----------")
-        iterate()
+        V = iterate(V)
         display_value(V)
     end
 
