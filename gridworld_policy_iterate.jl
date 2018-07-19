@@ -1,4 +1,4 @@
-
+#!/usr/bin/env julia
 using ArgParse
 
 # stop condition
