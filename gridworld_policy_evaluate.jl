@@ -30,27 +30,22 @@ function display_value(V)
     println(join(split(repr("text/plain", Vmat), "\n")[2:end], "\n"))
 end
 
-function iterate(V, lastV, A, γ)
+function iterate(V, A, γ)
     newV = copy(V)
     for (state, v) in pairs(V)
         isend(state) && continue
         newV[state] = reward(state)
-        for (a, p) in greedy_policy(state, lastV, A)
+        for (a, p) in policy(state, A)
             newV[state] += γ * p * V[next_state(state, a)]
         end
     end
     newV
 end
 
-policy_cache = Dict()
-
 # policy: action, probability list
-function greedy_policy(state, V, A)
+function policy(state, A)
     isend(state) && return Dict()
-    values = [V[next_state(state, a)] for a in A]
-    actions = A[findall(values .≈ maximum(values))]
-    # return
-    Dict(a => 1 / length(actions) for a in actions)
+    Dict(a => 1 / length(A) for a in A)
 end
 
 # reward
@@ -65,10 +60,6 @@ function main()
     @add_arg_table s begin
         "--n", "-n"
             arg_type = Int
-            default = 100
-            help = "num of inner iteration"
-        "--m", "-m"
-            arg_type = Int
             default = 10
             help = "num of iteration"
         "--gamma", "-g"
@@ -81,7 +72,6 @@ function main()
     end
     parsed_args = parse_args(ARGS, s)
     # config
-    M = parsed_args["m"]
     N = parsed_args["n"]
     γ = parsed_args["gamma"]
     verbose = parsed_args["verbose"]
@@ -91,21 +81,16 @@ function main()
     A = [:↑, :↓, :←, :→]
     # values
     V = Dict(x => 0. for x in S)
-    lastV = copy(V)
 
     println("---------- init ----------")
     display_value(V)
-    for m in 1:M
-        println("---------- $m ----------")
-        for k in 1:N
-            verbose && println("---------- $m-$k")
-            V = iterate(V, lastV, A, γ)
-            verbose && display_value(V)
-        end
-        verbose || display_value(V)
-        lastV = copy(V)
-        V = Dict(x => 0. for x in S)
+    for k in 1:N
+        verbose && println("---------- $k ----------")
+        V = iterate(V, A, γ)
+        verbose && display_value(V)
     end
+    verbose || println("---------- $N ----------")
+    verbose || display_value(V)
 end
 
 main()
