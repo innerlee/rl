@@ -60,8 +60,7 @@ function main()
     # states
     S = [(i, j) for i in 1:4 for j in 1:4]
     # actions
-    ↑, ↓, ←, → = :↑, :↓, :←, :→
-    A = [↑, ↓, ←, →]
+    A = [:↑, :↓, :←, :→]
     # values
     V = Dict(x => 0. for x in S)
 
